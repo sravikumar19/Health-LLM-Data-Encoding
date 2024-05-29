@@ -88,10 +88,10 @@ def compute_accuracy(labels, preds):
 
 
 def parse_response(response):
-    score_index = answer.find('answer_choice')
+    score_index = response.find('answer_choice')
     if score_index == -1:
         return "no"
-    return answer[score_index+15:]
+    return response[score_index+15:]
 
 
 def draw_ecg(ecg, lead, output_path):

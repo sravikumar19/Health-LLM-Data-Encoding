@@ -20,7 +20,7 @@ def run_ecg_qa():
     parser = argparse.ArgumentParser()
     parser.add_argument('question_type', type=str, choices=['single-verify', 'comparison_consecutive-verify', 'comparison_irrelevant-verify'], help= 'The type of ecg_question')
     parser.add_argument('encoding', type=str, choices=['natural_language', 'statistical_summary', 'visual'], help='The type of data encoding.')
-    parser.add_argument('model_name', type=str, choices=['gemini-1.0'], help='The LLM or multimodal model used.')
+    parser.add_argument('model_name', type=str, choices=['gemini-1.0', 'gpt-4o'], help='The LLM or multimodal model used.')
     parser.add_argument('--data_path', type=str, required=True, help='Path of output/ptbxl/valid/*.json')
     parser.add_argument('--output_path', type=str, help='Path to save results to')
     args = parser.parse_args()
@@ -31,12 +31,11 @@ def run_ecg_qa():
 
     if not args.output_path:
         current_time = datetime.now()
-        folder_name = 'results_' + question_type + "_" + encoding + "_" + model_name + "_" + current_time.strftime("%Y-%m-%d_%H-%M-%S")
+        folder_name = 'results_' + args.question_type + "_" + args.encoding + "_" + args.model_name + "_" + current_time.strftime("%Y-%m-%d_%H-%M-%S")
         os.makedirs(folder_name)
         output_path = folder_name
     else:
         output_path = args.output_path
-    print('processed output path')
 
     if 'single' in args.question_type:
         run_ecg_qa_single_verify(args.question_type, args.encoding, args.model_name, args.data_path, output_path)
@@ -231,7 +230,7 @@ def run_ecg_qa_comparison_verify(question_type, encoding, model_name, data_path,
                 )
                 response = completion.choices[0].message.content
         
-        response_parsed = parse_answer(response)
+        response_parsed = parse_response(response)
         pred = parse_pred(response_parsed)
         # print('prompt', prompt)
         # print('response', response)
