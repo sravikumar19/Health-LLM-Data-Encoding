@@ -1,14 +1,11 @@
 import json
-import glob 
 import pandas as pd
 from collections import defaultdict
 import os
-import random
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, accuracy_score, f1_score
 import math
-from random import randint
 import re
 
 def load_data(path, expand):
@@ -160,15 +157,15 @@ def create_multiple_plots(steps, heart_rate, calories, sleep, output_path):
     plt.figure()
     plt.plot(heart_rate, marker='o', color = 'black', linestyle='-')
     plt.title('Resting Heart Rate (Beats per Minute)')
-    plt.savefig("heart_rate_" + path)
-    plt.close(output_path + '/heart_rate.png')
+    plt.savefig(output_path + '/heart_rate.png')
+    plt.close()
 
     # calories plot 
     plt.figure()
     plt.plot(calories, marker='o', color = 'black', linestyle='-')
     plt.title('Calories Burned Per Day (kcal)')
-    plt.savefig("calories_" + path)
-    plt.close(output_path + '/calories.png')
+    plt.savefig(output_path + '/calories.png')
+    plt.close()
 
     # sleep plot 
     plt.figure()
