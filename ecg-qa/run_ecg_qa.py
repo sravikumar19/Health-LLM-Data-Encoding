@@ -1,9 +1,10 @@
 import argparse
 import os 
 from datetime import datetime
+import wfdb
 from openai import OpenAI
 import vertexai
-from vertexai.generative_models import GenerationConfig, GenerativeModel, Image, Part
+from vertexai.generative_models import GenerativeModel, Image
 from ecg_qa_helper import *
 
 hz = 500
@@ -45,11 +46,19 @@ def run_ecg_qa():
 
 def run_ecg_qa_single_verify(question_type, encoding, model_name, data_path, output_path):
     samples = load_ecg_data(question_type, data_path)
-    client = OpenAI()
 
+    if model_name == 'gemini-1.0':
+        if encoding == 'visual':
+            model = GenerativeModel("gemini-1.0-pro")
+        else:
+            model = GenerativeModel('gemini-1.0-pro-vision')
+    else:
+        client = OpenAI()
+    
     results = []
     preds = []
     answers = []
+
     for sample in samples:
         question = sample['question']
         answer = sample['answer'][0]
@@ -67,7 +76,6 @@ def run_ecg_qa_single_verify(question_type, encoding, model_name, data_path, out
                     Options: {options}
                     """
             if model_name == 'gemini-1.0':
-                model = GenerativeModel("gemini-1.0-pro")
                 response = model.generate_content([instruction, prompt], stream=False).text
             elif model_name == 'gpt-4o':
                 completion = client.chat.completions.create(
@@ -86,7 +94,6 @@ def run_ecg_qa_single_verify(question_type, encoding, model_name, data_path, out
                     Options: {options}
                     """
             if model_name == 'gemini-1.0':
-                model = GenerativeModel("gemini-1.0-pro")
                 response = model.generate_content([instruction, prompt], stream=False).text
             elif model_name == 'gpt-4o':
                 completion = client.chat.completions.create(
@@ -105,7 +112,6 @@ def run_ecg_qa_single_verify(question_type, encoding, model_name, data_path, out
             image = Image.load_from_file(output_path + '/ecg.png')
             if model_name == 'gemini-1.0':
                 inp = [instruction, prompt_part1, image, prompt_part2]
-                model = GenerativeModel("gemini-1.0-pro-vision")
                 response = model.generate_content(inp, stream=False).text
             elif model_name == 'gpt-4o':
                 base64_image = encode_image(image)
@@ -140,7 +146,13 @@ def run_ecg_qa_single_verify(question_type, encoding, model_name, data_path, out
 
 def run_ecg_qa_comparison_verify(question_type, encoding, model_name, data_path, output_path):
     samples = load_ecg_data(question_type, data_path)
-    client = OpenAI()
+    if model_name == 'gemini-1.0':
+        if encoding == 'visual':
+            model = GenerativeModel("gemini-1.0-pro")
+        else:
+            model = GenerativeModel('gemini-1.0-pro-vision')
+    else:
+        client = OpenAI()
 
     results = []
     preds = []
@@ -167,7 +179,6 @@ def run_ecg_qa_comparison_verify(question_type, encoding, model_name, data_path,
                         Options: {options}
                         """
             if model_name == 'gemini-1.0':
-                model = GenerativeModel("gemini-1.0-pro")
                 response = model.generate_content([instruction, prompt], stream=False).text
             elif model_name == 'gpt-4o':
                 completion = client.chat.completions.create(
@@ -187,8 +198,7 @@ def run_ecg_qa_comparison_verify(question_type, encoding, model_name, data_path,
                     Question: {question}
                     Options: {options}
                     """
-            if model_name == 'gemini':
-                model = GenerativeModel("gemini-1.0-pro")
+            if model_name == 'gemini-1.0':
                 response = model.generate_content([instruction, prompt], stream=False).text
             elif model_name == 'gpt-4o':
                 completion = client.chat.completions.create(
